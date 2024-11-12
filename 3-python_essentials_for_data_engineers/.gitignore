@@ -1,0 +1,4 @@
+duckdb.db
+tpch.db
+.env
+__pycache__/
