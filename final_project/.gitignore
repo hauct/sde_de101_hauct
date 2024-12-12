@@ -1,0 +1,6 @@
+duckdb*
+*.db
+
+.ipynb_checkpoints/
+env/
+.env

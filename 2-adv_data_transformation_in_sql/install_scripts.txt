@@ -1,0 +1,7 @@
+git clone https://github.com/josephmachado/adv_data_transformation_in_sql.git
+cd adv_data_transformation_in_sql
+python -m venv ./env # create a virtual env
+source ./env/Scripts/activate # use virtual environment
+pip install -r requirements.txt
+python setup.py
+jupyter lab
