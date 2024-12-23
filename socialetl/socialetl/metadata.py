@@ -20,10 +20,8 @@ def log_metadata(func):
         db = db_factory()
         with db.managed_cursor() as cur:
             cur.execute(
-                (
-                    'INSERT INTO log_metadata (function_name, input_params)'
-                    ' VALUES (:func_name, :input_params)'
-                ),
+                'INSERT INTO log_metadata (function_name, input_params)'
+                ' VALUES (:func_name, :input_params)',
                 {
                     'func_name': func.__name__,
                     'input_params': str(

@@ -2,6 +2,7 @@ import sqlite3
 from contextlib import contextmanager
 from typing import Iterator
 
+
 class DatabaseConnection:
     def __init__(
         self, db_type: str = 'sqlite3', db_file: str = 'data/socialetl.db'

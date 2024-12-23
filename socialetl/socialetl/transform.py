@@ -4,14 +4,16 @@ from typing import Callable, List
 
 from social_etl import RedditPostData, SocialMediaData
 
+
 def no_transformation(
     social_data: List[SocialMediaData],
 ) -> List[SocialMediaData]:
     logging.info('No transformation applied.')
     return social_data
 
+
 def random_choice_filter(
-    social_data: List[SocialMediaData]
+    social_data: List[SocialMediaData],
 ) -> List[SocialMediaData]:
     """Function to filter social media data, by only keeping the
     posts with number of comments greater than 2 standard deviations
@@ -26,8 +28,9 @@ def random_choice_filter(
     logging.info('Randomly choosing 2 social media data points.')
     return random.choices(social_data, k=2)
 
+
 def standard_deviation_outlier_filter(
-    social_data: List[SocialMediaData]
+    social_data: List[SocialMediaData],
 ) -> List[SocialMediaData]:
     """Function to filter social media data, by only keeping the
     posts with number of comments greater than 2 standard deviations
@@ -43,7 +46,7 @@ def standard_deviation_outlier_filter(
         'Filtering social media data based on Standard Deviation Outlier'
         ' algorithm.'
     )
-    
+
     # check if social data is an instance of RedditPostData
     if not isinstance(social_data[0].social_data, RedditPostData):
         raise TypeError(
@@ -66,6 +69,7 @@ def standard_deviation_outlier_filter(
         if post.social_data.comms_num  # type: ignore
         > mean_num_comments + 2 * std_num_comments
     ]
+
 
 def transformation_factory(
     transformation_type: str,

@@ -9,26 +9,22 @@ def setup_db_schema():
     db = db_factory()
     with db.managed_cursor() as cur:
         logging.info('Creating social_posts table.')
-        cur.execute(
-            """
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS social_posts (
                 id TEXT PRIMARY KEY,
                 source TEXT,
                 social_data TEXT,
                 dt_created datetime default current_timestamp
             )
-            """
-        )
+            """)
         logging.info('Creating ETL metadata table.')
-        cur.execute(
-            """
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS log_metadata (
                 dt_created datetime default current_timestamp,
                 function_name TEXT,
                 input_params TEXT
             )
-            """
-        )
+            """)
 
 
 def teardown_db_schema():

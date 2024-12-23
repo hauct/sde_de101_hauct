@@ -13,6 +13,7 @@ from utils.db import DatabaseConnection
 
 load_dotenv()
 
+
 @dataclass
 class RedditPostData:
     """Dataclass to hold reddit post data.
@@ -33,6 +34,7 @@ class RedditPostData:
     created: str
     text: str
 
+
 @dataclass
 class TwitterTweetData:
     """Dataclass to hold twitter post data.
@@ -42,6 +44,7 @@ class TwitterTweetData:
     """
 
     text: str
+
 
 @dataclass
 class SocialMediaData:
@@ -56,54 +59,50 @@ class SocialMediaData:
     source: str
     social_data: RedditPostData | TwitterTweetData
 
+
 class SocialETL(ABC):
     @abstractmethod
     def extract(
-        self
-        , id: str
-        , num_records: int
-        , client
+        self, id: str, num_records: int, client
     ) -> List[SocialMediaData]:
         pass
-    
+
     @abstractmethod
     def transform(
-        self
-        , social_data: List[SocialMediaData]
-        , transform_function: Callable[
+        self,
+        social_data: List[SocialMediaData],
+        transform_function: Callable[
             [List[SocialMediaData]], List[SocialMediaData]
-        ]
+        ],
     ) -> List[SocialMediaData]:
         pass
 
     @abstractmethod
     def load(
-        self
-        , social_data: List[SocialMediaData]
-        , db_cursor_context: DatabaseConnection
+        self,
+        social_data: List[SocialMediaData],
+        db_cursor_context: DatabaseConnection,
     ) -> None:
         pass
 
     @abstractmethod
     def run(
-        self
-        , db_cursor_context: DatabaseConnection
-        , client
-        , transform_function: Callable[
+        self,
+        db_cursor_context: DatabaseConnection,
+        client,
+        transform_function: Callable[
             [List[SocialMediaData]], List[SocialMediaData]
-        ]
-        , id: str
-        , num_records: int
+        ],
+        id: str,
+        num_records: int,
     ):
         pass
+
 
 class RedditETL(SocialETL):
     @log_metadata
     def extract(
-        self
-        , id: str
-        , num_records: int
-        , client: praw.Reddit
+        self, id: str, num_records: int, client: praw.Reddit
     ) -> List[SocialMediaData]:
         """Get reddit data from a subreddit.
 
@@ -126,27 +125,28 @@ class RedditETL(SocialETL):
         for submission in top_subreddit:
             reddit_data.append(
                 SocialMediaData(
-                    id = submission.id
-                    , source='reddit'
-                    , social_data=RedditPostData(
-                        title=submission.title
-                        , score=submission.score
-                        , url=submission.url
-                        , comms_num=submission.num_comments
-                        , created=str(submission.created)
-                        , text=submission.selftext
-                    )
+                    id=submission.id,
+                    source='reddit',
+                    social_data=RedditPostData(
+                        title=submission.title,
+                        score=submission.score,
+                        url=submission.url,
+                        comms_num=submission.num_comments,
+                        created=str(submission.created),
+                        text=submission.selftext,
+                    ),
                 )
             )
         return reddit_data
-    
+
     @log_metadata
     def transform(
-        self
-        , social_data: List[SocialMediaData]
-        , transform_function: Callable[
+        self,
+        social_data: List[SocialMediaData],
+        transform_function: Callable[
             [List[SocialMediaData]], List[SocialMediaData]
-        ]) -> List[SocialMediaData]:
+        ],
+    ) -> List[SocialMediaData]:
         """Function to transform reddit data, by only keeping the
         posts with number of comments greater than 2 standard deviations
         away from the mean number of comments.
@@ -159,12 +159,12 @@ class RedditETL(SocialETL):
         """
         logging.info('Transforming reddit data.')
         return transform_function(social_data)
-    
+
     @log_metadata
     def load(
-        self
-        , social_data: List[SocialMediaData]
-        , db_cursor_context: DatabaseConnection
+        self,
+        social_data: List[SocialMediaData],
+        db_cursor_context: DatabaseConnection,
     ) -> None:
         """Function to load data into a database.
 
@@ -194,15 +194,16 @@ class RedditETL(SocialETL):
                         'social_data': str(asdict(post.social_data)),
                     },
                 )
+
     def run(
-        self
-        , db_cursor_context: DatabaseConnection
-        , client
-        , transform_function: Callable[
+        self,
+        db_cursor_context: DatabaseConnection,
+        client,
+        transform_function: Callable[
             [List[SocialMediaData]], List[SocialMediaData]
-        ]
-        , id: str = 'dataengineering'
-        , num_records: int = 100
+        ],
+        id: str = 'dataengineering',
+        num_records: int = 100,
     ) -> None:
         """Function to run the ETL pipeline.
 
@@ -223,13 +224,11 @@ class RedditETL(SocialETL):
             db_cursor_context=db_cursor_context,
         )
 
+
 class TwitterETL(SocialETL):
     @log_metadata
     def extract(
-        self
-        , id: str
-        , num_records: int
-        , client: tweepy.API
+        self, id: str, num_records: int, client: tweepy.API
     ) -> List[SocialMediaData]:
         logging.info("Extracting twitter data.")
         # if twitter client is None, raise an error
@@ -238,7 +237,7 @@ class TwitterETL(SocialETL):
                 "twitter object is None. Please pass a valid tweepy.Tweet"
                 " object."
             )
-        
+
         # given user name, get user id with tweepy
         user_id = client.get_user(username=id).data.id
         # get list of users the user_id is following with tweepy
@@ -282,11 +281,11 @@ class TwitterETL(SocialETL):
 
     @log_metadata
     def transform(
-        self
-        , social_data: List[SocialMediaData]
-        , transform_function: Callable[
+        self,
+        social_data: List[SocialMediaData],
+        transform_function: Callable[
             [List[SocialMediaData]], List[SocialMediaData]
-        ]
+        ],
     ) -> List[SocialMediaData]:
         """Function to transform twitter data, by only keeping the
         posts with number of comments greater than 2 standard deviations
@@ -303,9 +302,9 @@ class TwitterETL(SocialETL):
 
     @log_metadata
     def load(
-        self
-        , social_data: List[SocialMediaData]
-        , db_cursor_context: DatabaseConnection
+        self,
+        social_data: List[SocialMediaData],
+        db_cursor_context: DatabaseConnection,
     ) -> None:
         """Function to load data into a database.
 
@@ -335,15 +334,16 @@ class TwitterETL(SocialETL):
                         'social_data': str(asdict(post.social_data)),
                     },
                 )
+
     def run(
-        self
-        , db_cursor_context: DatabaseConnection
-        , client,
+        self,
+        db_cursor_context: DatabaseConnection,
+        client,
         transform_function: Callable[
             [List[SocialMediaData]], List[SocialMediaData]
-        ]
-        , id: str = 'startdataeng'
-        , num_records: int = 10
+        ],
+        id: str = 'startdataeng',
+        num_records: int = 10,
     ):
         """Function to run the ETL pipeline.
 
@@ -364,21 +364,21 @@ class TwitterETL(SocialETL):
             db_cursor_context=db_cursor_context,
         )
 
+
 def etl_factory(source: str) -> Tuple[praw.Reddit | tweepy.Client, SocialETL]:
     factory = {
         'reddit': (
             praw.Reddit(
-                client_id=os.environ['REDDIT_CLIENT_ID']
-                , client_secret=os.environ['REDDIT_CLIENT_SECRET']
-                , user_agent=os.environ['REDDIT_USER_AGENT']
+                client_id=os.environ['REDDIT_CLIENT_ID'],
+                client_secret=os.environ['REDDIT_CLIENT_SECRET'],
+                user_agent=os.environ['REDDIT_USER_AGENT'],
             ),
-            RedditETL()
-        )
-        , 
+            RedditETL(),
+        ),
         'twitter': (
             tweepy.Client(bearer_token=os.environ['BEARER_TOKEN']),
             TwitterETL(),
-        )
+        ),
     }
     if source in factory:
         return factory[source]
