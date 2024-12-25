@@ -3,10 +3,9 @@ from datetime import datetime
 from typing import List
 
 import pytest
-
-from socialetl.social_etl import RedditPostData, SocialMediaData, etl_factory
-from socialetl.transform import transformation_factory
-from socialetl.utils.db import db_factory
+from social_etl import RedditPostData, SocialMediaData, etl_factory
+from transform import transformation_factory
+from utils.db import db_factory
 
 
 class TestRedditETL:
@@ -41,9 +40,7 @@ class TestRedditETL:
             )
         return list_of_reddit_data
 
-    def test_transform(
-        self, mock_reddit_data: List[SocialMediaData], mocker
-    ) -> None:
+    def test_transform(self, mock_reddit_data: List[SocialMediaData]) -> None:
         """Function to test the transform method of the RedditETL class.
 
         Args:
@@ -63,9 +60,7 @@ class TestRedditETL:
         assert transformed_data[0].social_data.comms_num == 8  # type: ignore
         assert len(transformed_data) == 1
 
-    def test_load(
-        self, mock_reddit_data: List[SocialMediaData], mocker
-    ) -> None:
+    def test_load(self, mock_reddit_data: List[SocialMediaData]) -> None:
         """Function to test the load method of the RedditETL class.
 
         Args:
